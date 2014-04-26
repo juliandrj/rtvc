@@ -48,7 +48,7 @@
 			$scope.anonimas = new Array();
 			$scope.itemsPerPage = 26;
 			$scope.currentPage = 1;
-			$scope.activa = [false, false, true];
+			$scope.activa = [true, false, false];
 			var supervisarProgreso = function(mensaje){
 				$timeout(function(){
 					if (progreso >= 100) {
@@ -204,124 +204,6 @@
 				</div>
 				<div id="bsociales"></div>
 				<tabset>
-					<tab heading="Participa aqu&iacute;" active="activa[0]">
-						<div class="container-fluid">
-							<div class="row">
-								<div class="col-md-12">
-									<h2>Participa aqu&iacute;</h2>
-								</div>
-							</div>
-							<div ng-include="'sociales.html'"></div>
-						</div>
-						<alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">{{alert.msg}}</alert>
-						<form class="fanonimas" role="form" name="formAnonimas" novalidate>
-							<div class="row titulo">
-								<div class="col-md-12">
-									<span class="ftitulo">Tus datos personales</span>
-								</div>
-							</div>
-							<div class="row">
-								<label class="col-md-2" for="uName">Nombres:</label>
-								<input id="uName" class="col-md-4" type="text" ng-model="user.name" name="uName" required/>
-								<label class="col-md-2" for="uLastname">Apellidos:</label>
-								<input id="uLastname" class="col-md-4" type="text" ng-model="user.lastname" name="uLastname" required/>
-							</div>
-							<div class="row">
-								<label class="col-md-2" for="uDocType">Tipo de documento:</label>
-								<select id="uDocType" class="col-md-4" name="uDocType" ng-model="user.docType" required>
-									<option value="cc">C&eacute;dula</option>
-									<option value="ce">C&eacute;dula Extranjer&iacute;a</option>
-								</select>
-								<label class="col-md-2" for="uDocument">N&uacute;mero de documento:</label>
-								<input id="uDocument" class="col-md-4" type="text" ng-model="user.document" ng-blur="validarConcursante(user)" name="uDocument" required/>
-							</div>
-							<div class="row">
-								<label class="col-md-2" for="uState">Departamento:</label>
-								<select id="uState" class="col-md-4" name="uState" ng-model="user.state" ng-options="depto.nid as depto.departamento for depto in deptos" ng-change="updateMcipios(user.state, false)"></select>
-								<label class="col-md-2" for="uCounty">Municipio:</label>
-								<select id="uCounty" class="col-md-4" name="uCounty" ng-model="user.county" ng-options="mcipio.nid as mcipio.municipio for mcipio in mcipios" required></select>
-							</div>
-							<div class="row">
-								<label class="col-md-2" for="uGender">Sexo:</label>
-								<select id="uGender" class="col-md-4" name="uGender" ng-model="user.gender" required>
-									<option value="m">Hombre</option>
-									<option value="f">Mujer</option>
-								</select>
-								<label class="col-md-2" for="uPhone">Tel&eacute;fono de contacto:</label>
-								<input id="uPhone" class="col-md-4" type="text" ng-model="user.phone" name="uPhone" required/>
-							</div>
-							<div class="row">
-								<label class="col-md-2" for="uAddress">Direcci&oacute;n de contacto:</label>
-								<input id="uAddress" class="col-md-10" type="text" ng-model="user.address" name="uAddress" required/>
-							</div>
-							<div class="row">
-								<label class="col-md-2" for="uEmail">Correo electr&oacute;nico:</label>
-								<input id="uEmail" class="col-md-10" type="email" ng-model="user.email" name="uEmail" required/>
-								<div class="col-md-12" ng-show="formAnonimas.uEmail.$dirty && formAnonimas.uEmail.$invalid">Dato no valido:
-									<span ng-show="formAnonimas.uEmail.$error.required">Diligencia tu correo electronico.</span>
-									<span ng-show="formAnonimas.uEmail.$error.email">Esta no es una direccion de correo valida.</span>
-								</div>
-							</div>
-							
-							<div class="row titulo">
-								<div class="col-md-12">
-									<span class="ftitulo">Datos de tu An&oacute;nima Extraordinaria:</span>
-								</div>
-							</div>
-							<div class="row">
-								<label class="col-md-2" for="uAName">Nombre completo:</label>
-								<input id="uAName" class="col-md-10" type="text" ng-model="anonima.name" name="uAName" required/>
-							</div>
-							<div class="row">
-								<label class="col-md-2" for="uAImg1">Adjunta tres(3) fotos:</label>
-								<input id="uAImg1" class="col-md-4" type="file" />
-								<label class="col-md-2" for="uAState">Departamento:</label>
-								<select id="uAState" class="col-md-4" name="uAState" ng-model="anonima.state" ng-options="depto.nid as depto.departamento for depto in deptos" ng-change="updateMcipios(anonima.state, true)">
-									<option value="-1">---</option>
-								</select>
-							</div>
-							<div class="row">
-								<div class="col-md-2"><small style="font-size: 0.5em;">Formato png o jpg. Tama&ntilde;o m&iacute;nimo 800x600px.</small></div>
-								<input id="uAImg2" class="col-md-4" type="file" />
-								<label class="col-md-2" for="uACounty">Municipio:</label>
-								<select id="uACounty" class="col-md-4" name="uACounty" ng-model="anonima.county" ng-options="mcipio.nid as mcipio.municipio for mcipio in amcipios" required>
-									<option value="-1">---</option>
-								</select>
-							</div>
-							<div class="row">
-								<div class="col-md-2"></div>
-								<input id="uAImg3" class="col-md-4" type="file" />
-								<div class="col-md-6"></div>
-							</div>
-							<div class="row">
-								<div class="col-md-12">
-									<label for="uAPostulation">&#191;Por qu&eacute;e crees que es una an&oacute;nima extraordinaria?</label><br/>
-									<textarea id="uAPostulation" name="uAPostulation" style="width: 100%;" ng-model="anonima.postulation" ng-maxlength="2000" required></textarea>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-12">
-									<label>
-										<input type="checkbox" ng-model="anonima.agree" name="uAgree" required /> He le&iacute;do y acepto los <a href="#" ng-click="verTyC()">t&eacute;rminos y condiciones</a>.
-									</label>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-12">
-									<label>
-										<input type="checkbox" ng-model="user.agreeSend" name="uAgreeSend" /> Acepto recibir informaci&oacute;n v&iacute;a e-mail sobre futuras actividades del canal Se&ntilde;al Colombia.
-									</label>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-12">
-									<p class="texto" style="text-align: right;">* Todos los campos del formulario son obligatorios.</p>
-									<button class="btn aladerecha" type="button" ng-click="salvar(user, anonima)" ng-disabled="formAnonimas.$invalid">Enviar</button>
-								</div>
-							</div>
-							<h3 style="text-align: center;">&#33;Nos sentimos orgullosos de nuestras mujeres!</h3>
-						</form>
-					</tab>
 					<tab heading="Postuladas" active="activa[1]">
 						<div class="container-fluid">
 							<div class="row">
@@ -363,9 +245,25 @@
 									</div>
 								</div>
 							</div>
+						</div>
+					</tab>
+					<tab heading="An&oacute;nimas destacadas" active="activa[0]">
+						<div class="container-fluid">
 							<div class="row">
-								<div class="col-md-12 text-center">
-									<button class="btn" type="button" ng-click="setActiveTab(0)">Participa Aqu&iacute;</button>
+								<div class="col-md-12">
+									<h2>An&oacute;nimas destacadas</h2>
+								</div>
+							</div>
+							<div ng-include="'sociales.html'"></div>
+							<div class="row">
+								<div class="col-md-4 texto" ng-repeat="destacada in destacadas">
+									<div class="container text-center">
+										<img src="http://series.senalcolombia.tv.s3.amazonaws.com/gallery/thumb_anonimas_{{destacada.documento}}_120_0_3.png" />
+									</div>
+									<h1>{{destacada.nombre}}</h1>
+									<p class="text-justify">
+										{{destacada.nominacion}}
+									</p>
 								</div>
 							</div>
 						</div>

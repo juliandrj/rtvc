@@ -1,6 +1,4 @@
 var app = angular.module("anonimasApp", ['ui.bootstrap', 'dialogs', 'ngSanitize', 'ngRoute']);
-AWS.config.update({accessKeyId: 'AKIAJD3IBKWMT52SYQNA', secretAccessKey: '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'});
-AWS.config.region = 'us-east-1';
 var bucket = new AWS.S3({params: {Bucket: 'senalcolombia.tv/anonimas'}});
 var host = 'http://series.senalcolombia.tv/';
 //var host = 'http://172.19.5.55/series/';
@@ -44,11 +42,15 @@ app.config(function($routeProvider, $locationProvider) {
 });
 
 function load($scope, $http, $dialogs) {
-	var pasos = 4;
+	var pasos = 5;
 	progreso = 0;
 	var dlg = $dialogs.wait('Cargando...', progreso);
 	$http({method: 'POST', url: 'http://www.senalcolombia.tv/templates/senalcolombia-2013/recursos/menujson/jmenu.php'}).success(function(data) {
 		$scope.menu = data;
+		progreso += Math.ceil(100 / pasos);
+	});
+	$http({method: 'GET', url: host + '/services.sc/views/anonima.json?args[0]=all&args[1]=all&args[2]=all&args[3]=1'}).success(function(data) {
+		$scope.destacadas = data;
 		progreso += Math.ceil(100 / pasos);
 	});
 	$http({method: 'GET', url: host + '/services.sc/views/anonima.json'}).success(function(data) {
