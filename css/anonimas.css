@@ -1,0 +1,378 @@
+@CHARSET "ISO-8859-1";
+@import url(http://fonts.googleapis.com/css?family=Open+Sans);
+@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\:form{display:block;}.ng-animate-start{clip:rect(0,auto,auto,0);-ms-zoom:1.0001;}.ng-animate-active{clip:rect(-1px,auto,auto,0);-ms-zoom:1;}
+/******************************************************************************/
+/* Fix for Bootstrap 3 with Angular UI Bootstrap */
+.modal {
+	height: 40em;
+	display: block;
+	overflow: hidden;
+	overflow-y: hidden; 
+}
+/*.modal-dialog {
+	height: 75%;
+}*/
+/* Custom dialog/modal headers */
+.dialog-header-error { background-color: #d2322d; }
+.dialog-header-wait { background-color: #428bca; }
+.dialog-header-notify { background-color: #eeeeee; }
+.dialog-header-confirm { background-color: #333333; }
+	.dialog-header-error span, .dialog-header-error h4,
+	.dialog-header-wait span, .dialog-header-wait h4,
+	.dialog-header-confirm span, .dialog-header-confirm h4 { color: #ffffff; }
+/* Ease Display */
+.pad { padding: 25px; }
+/******************************************************************************/
+
+html, body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	background: #FFFFFF;
+	font-family: arial;
+	font-size: 16px;
+	color: #393F65;
+}
+
+#wrapper {
+	min-height: 100%;
+	position: relative;
+}
+
+.cabeza {
+	width: 100%;
+	height: 35px;
+	background-color: #404040;
+}
+
+.cuerpo {
+	padding: 0.3em;
+	padding-bottom: 79px; 
+}
+
+#main {
+	margin: 0 auto;
+} 
+
+#main, #logo {
+	width: 1200px;
+}
+
+#menu {/*78x28*/
+	width: 1200px !important;
+	margin: 0 auto;
+	padding-left: 78px;
+	font-size: 0.75em;
+	background-image: url(http://especiales.senalcolombia.tv/encinenosvemos/sites/senalcolombia.tv.encinenosvemos/themes/special/images/logo_senalcolombia_menu.png);
+	background-position: 160px 5px;
+	background-repeat: no-repeat;
+}
+
+#logo {
+	height: 250px;
+	margin: 0 0 2em;
+	background: url(http://senalcolombia.tv.s3.amazonaws.com/frontend-series/actividades/anonimas/img/anonim_header.jpg) no-repeat;
+}
+
+#main h2, #main h3, #main h4, #main h5 {
+	font-weight: bold;
+}
+
+#main h2 {
+	font-family: 'Open Sans';
+	color: #308499;
+	font-size: 1.3em;
+}
+
+#main h3 {
+	font-family= arial;
+	font-size: 1em;
+	color: #393F65;
+}
+
+#main h4 {
+	font-family: 'Open Sans';
+	color: #17396C;
+	font-size: 1.6em;
+	text-align: center;
+}
+
+#main h5 {
+	font-family: 'Open Sans';
+	color: #30849A;
+	font-size: 1.2em;
+	text-align: center;
+}
+
+#main h6 {
+	color: #393F65;
+	font-size: 16px;
+}
+
+.texto {
+	font-size: 0.8em;
+}
+
+.campo, .renglon3 {
+	width: 49%;
+	min-height: 30px;
+	height: auto;
+	margin: 0.3em;
+	float: left;
+}
+
+.renglon, .renglon2 {
+	width: 99%;
+	min-height: 30px;
+	height: auto;
+	margin: 0.3em;
+	float: left;
+}
+
+.campo label {
+	width: 30%;
+	float: left;
+}
+
+.renglon label {
+	width: 15%;
+	float: left;
+}
+
+.renglon2 label, .renglon2 input, .renglon2 textarea {
+	width: 99%;
+	float: left;
+	margin: 0.3em 0;
+}
+
+.renglon3 .etiqueta {
+	width: 30%;
+	height: 5em;
+	float: left;
+}
+
+.etiqueta p {
+	font-size: 0.7em;
+	color: #33859F;
+}
+
+.renglon3 input {
+	margin-bottom: 0.3em;
+}
+
+fieldset {
+	background: url("http://senalcolombia.tv.s3.amazonaws.com/templates/senalcolombia-2013/recursos/anonimas/img/anonim_bullet.png") repeat-x;
+	background-position: 0px 3px;
+	margin: 1em 0;
+	padding: 2em 0;
+}
+
+.ftitulo {
+	font-family: 'Open Sans';
+	width: auto !important;
+	padding: 3px 0.5em;
+	margin: 2px 0.5em; 
+	color: #33859F !important;
+	border-bottom: none;
+	background: #ffffff;
+	font-size: 0.9em !important;
+	font-weight: bolder;
+}
+
+legend, label, input, select, textarea {
+	font-family: 'Open Sans';
+	color: #33859F;
+}
+
+label {
+	font-size: 0.85em;
+	font-weight: normal;
+}
+
+input, select, textarea {
+	background: #E6F6F9;
+	border: solid 1px #97C2D0;
+	color: #112C54;
+	font-size: 0.85em;
+}
+
+textarea {
+	height: 5em;
+}
+
+button {
+	color: #ffffff;
+	font-size: 0.85em;
+	background: #317F96;
+}
+
+.campo input, .campo select, .campo textarea, .renglon input, .renglon select, .renglon textarea {
+	min-height: 26px;
+	margin-right: 0.3em;
+}
+
+.campo input, .campo select, .campo textarea, .renglon3 input {
+	width: 65%;
+	float: left;
+}
+
+.renglon input, .renglon select, .renglon textarea {
+	width: 84%;
+	float: left;
+}
+
+ul.nav-tabs {
+	margin-bottom: 1.5em;
+}
+
+.nav-tabs li {
+	float: right;
+	font-size: 0.9em;
+	cursor: pointer;
+}
+
+li.ng-isolate-scope a.ng-binding {
+	background: #17396C;
+	color: #fff;
+}
+
+li.ng-isolate-scope.active a.ng-binding {
+	background: #256487;
+	color: #fff;
+}
+
+.aladerecha {
+	float: right;
+}
+
+.alaizquierda {
+	float: left;
+}
+
+.footer-home {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	padding: 30px 0;
+	margin: 0;
+	background: #404040;
+	float: none;
+}
+
+.footer-text {
+	color: #FFF!important;
+	float: none;
+	font-family: Arial,Helvetica,sans-serif!important;
+	font-size: 10px!important;
+	font-style: normal!important;
+	text-align: center;
+}
+
+.social {
+	width: 100%;
+	text-align: right;
+	margin: 0.3em 0;
+}
+
+.convideo .texto {
+	width: 540px;
+	margin-right: 10px;
+	float: left;
+}
+
+.anonima120 {
+	min-height: 14em;
+}
+
+.anonima120 img {
+	width: 120px;
+	height: 120px;
+	margin: 0.3em auto;
+	border: 1px #C1C1C1 solid;
+}
+
+.anonima120 h3 {
+	width: 100%;
+	margin: 0.3em 0;
+	font-family: 'Open Sans';
+	color: #258DA0;
+	font-size: 0.75em;
+	font-weight: bold;
+}
+
+.anonima120 p {
+	width: 100%;
+	margin: 0.3em 0;
+	font-family: 'Open Sans';
+	color: #393F65;
+	font-size: 0.7em;
+}
+
+.centrado {
+	text-align: center;
+}
+
+.sociales {
+	width: 100%;
+	float: right;
+}
+
+.sociales .celda {
+	height: 20px;
+	padding: 0.3em;
+	margin: 0.3em;
+	float: left;
+}
+
+.fondoRaya {
+	height: 2em;
+	margin: 0.5em 0;
+	background: url("http://senalcolombia.tv.s3.amazonaws.com/templates/senalcolombia-2013/recursos/anonimas/img/anonim_bullet.png") repeat-x;
+	background-position: 0px 1em;
+}
+
+.postuladaFooter {
+	font-family: 'Open Sans';
+	color: #30849A;
+	font-weight: bold;
+	font-size: 1.3em;
+}
+
+.intermedio {
+	margin: 1em 0;
+}
+
+#bsociales {
+	text-align: right;
+	top: 162px;
+	position: relative;
+}
+
+#bsociales #linka2a {
+	margin-right: 190px;
+}
+
+.avideo {
+	margin-left: 1.5em;
+}
+
+.maxModalH {
+	height: 30em;
+	overflow: auto;
+}
+
+.fanonimas .row.titulo {
+	margin-top: 1em;
+	background: url("http://senalcolombia.tv.s3.amazonaws.com/templates/senalcolombia-2013/recursos/anonimas/img/anonim_bullet.png") repeat-x;
+	background-position: 0px 0.6em;
+}
+
+.fanonimas .row.titulo h2 {
+	width: auto !important;
+	padding: 0 0.5em;
+	background: #fff;
+}
+
+.fanonimas .row {
+	margin-bottom: 0.3em;
+}

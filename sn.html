@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Anonimas extraordinarias</title>
+		<style type="text/css">
+			html, body {
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script type="text/javascript">
+			$(function(){
+				var nid = window.location.search.substring(1);
+				console.log(nid);
+				var url = 'http://anonimas.senalcolombia.tv/actividad/index.html' + (nid != '' ? '#/postulada/' + nid : '');
+				console.log(url);
+				$('body').html(
+					'<div id="fb-root"></div> <table> <tr> <td> <a href="https://plus.google.com/share?url=' + url + '" onclick="javascript:window.open(this.href,\'\', \'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600\');return false;"><img src="https://www.gstatic.com/images/icons/gplus-16.png" alt="Share on Google+"/></a> </td> <td> <div class="fb-share-button" data-href="' + url + '" data-type="button_count"></div> </td> <td> <a href="https://twitter.com/share" class="twitter-share-button" data-lang="es" data-url="' + url + '">Tweet</a> </td> </tr> </table>'
+				);
+			});
+			$(document).ready(function(){
+				(function(d, s, id) {
+					var js, fjs = d.getElementsByTagName(s)[0];
+					if (d.getElementById(id)) {
+						return;
+					}
+					js = d.createElement(s); js.id = id;
+					js.src = "//connect.facebook.net/es_LA/all.js#xfbml=1";
+					fjs.parentNode.insertBefore(js, fjs);
+				}(document, 'script', 'facebook-jssdk'));
+				!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
+			});
+		</script>
+	</head>
+	<body>
+	</body>
+</html>

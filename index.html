@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es" class="ng-scope" ng-app="anonimasApp">
+	<head>
+		<meta charset="ISO-8859-1">
+		<title>Postulaci&oacute;n</title>
+		<link rel="stylesheet prefetch" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+		<link rel="stylesheet" href="http://senalcolombia.tv.s3.amazonaws.com/components/menu/menu.css">
+		<link rel="stylesheet" href="css/anonimas.css">
+		<!--[if IE]>
+		<link rel="stylesheet" href="css/anonimas-ie.css">
+		<![endif]-->
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-sanitize.min.js"></script>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-route.min.js"></script>
+		<script type="text/javascript" src="https://sdk.amazonaws.com/js/aws-sdk-2.0.0-rc11.min.js"></script>
+		<script type="text/javascript" src="http://senalcolombia.tv.s3.amazonaws.com/templates/senalcolombia-2013/recursos/anonimas/js/ui-bootstrap-tpls-0.10.0.min.js"></script>
+		<script type="text/javascript" src="js/dialogs.v2.min.js"></script>
+		<script type="text/javascript" src="js/anonimas.js"></script>
+		<script type="text/javascript">
+		var urla2a = 'http://anonimas.senalcolombia.tv/actividad/index.html';
+		var configA2A = function() {
+			a2a_config.target = '.share-this';
+			a2a_config.locale = "es";
+			a2a_config.linkname = 'Anonimas Extraordinarias';
+			a2a_config.linkurl = urla2a;
+			a2a.init('page');
+		} 
+		var a2a_config = null;
+		var loadSocialNetworksButton = function (url) {
+			a2a_config = a2a_config || {};
+			a2a_config.tracking_callback = {
+				ready: configA2A
+			};
+			var socialdiv = document.getElementById('bsociales');
+			socialdiv.innerHTML = '';
+			socialdiv.innerHTML = '<a id="linka2a" class="share-this a2a_target" href="http://www.addtoany.com/share_save"><img src="http://static.addtoany.com/buttons/share_save_171_16.png" width="171" height="16" border="0" alt="Share"/></a>';
+			urla2a = 'http://anonimas.senalcolombia.tv/actividad/index.html' + url;
+			var a = document.createElement('script');
+			a.type = 'text/javascript';
+			a.async = true;
+			a.src = 'http://static.addtoany.com/menu/page.js';
+			var s = document.getElementById('linka2a');
+			s.parentNode.insertBefore(a, s);
+		};
+		var AnonimasCtrl = function ($scope, $http, $rootScope, $timeout, $dialogs, $route, $routeParams) {
+			$scope.alerts = new Array();
+			$scope.anonimasTotal = new Array();
+			$scope.anonimas = new Array();
+			$scope.itemsPerPage = 26;
+			$scope.currentPage = 1;
+			$scope.activa = [false, false, true];
+			var supervisarProgreso = function(mensaje){
+				$timeout(function(){
+					if (progreso >= 100) {
+						$rootScope.$broadcast('dialogs.wait.complete');
+						if (salir) {
+							var dlg = $dialogs.create('ok.html', 'AnonimasModalCtrl', {}, {key: false, back: 'static'});
+						}
+					} else {
+						$rootScope.$broadcast('dialogs.wait.progress', {msg: mensaje, 'progress': progreso});
+						supervisarProgreso(mensaje);
+					}
+				}, 1000);
+			};
+			$scope.setActiveTab = function (n) {
+				if (n < 0 || $scope.activa.length <= n) {
+					return;
+				}
+				$scope.activa = [false, false, false];
+				$scope.activa[n] = true;
+			}
+			var render = function () {
+				$scope.renderAction = $route.current.action;
+				$scope.origen=location.href;
+				if ($routeParams.nid && $routeParams.nid !== 'undefined') {
+					for (var i = 0; i < $scope.anonimas.length; i++) {
+						if ($scope.anonimas[i].nid == $routeParams.nid) {
+							$scope.postulada = $scope.anonimas[i];
+ 							loadSocialNetworksButton('#/postulada/' + $routeParams.nid);
+							break;
+						}
+					}
+					if (!$scope.postulada || $scope.postulada === 'undefined') {
+						$http({method: 'GET', url: host + '/services.sc/views/anonima.json?args[0]=' + $routeParams.nid}).success(function(data) {
+							$scope.postulada = data[0];
+ 							loadSocialNetworksButton('#/postulada/' + $scope.postulada.nid);
+						});
+					}
+					$scope.activa = [false, true, false];
+				} else {
+					$scope.postulada = null;
+ 					loadSocialNetworksButton('');
+				}
+			};
+			$scope.setPage = function (page) {
+				$scope.currentPage = page;
+				var indexSup = $scope.itemsPerPage * (page - 1) + $scope.itemsPerPage;
+				var indexInf = $scope.itemsPerPage * (page - 1);
+				$scope.anonimas = $scope.anonimasTotal.slice(indexInf, indexSup < $scope.anonimasTotal.length ? indexSup : $scope.anonimasTotal.length);
+			};
+			load($scope, $http, $dialogs);
+			supervisarProgreso('Cargando...');
+			$scope.verTyC = function () {
+				$http({method: 'GET', url: host + '/services.sc/views/episode.json?args[0]=all&args[1]=1204'}).success(function(data) {
+					$scope.episode = data[0];
+					var dlg = $dialogs.create('episode.html', 'AnonimasModalCtrl', {episode: data[0]}, {key: false, back: 'static', width: 900});
+				});
+			};
+			$scope.updateMcipios = function (state, anonima) {
+				if ($scope.departamento <= 0) {
+					$scope.mcipios = new Array();
+					return;
+				}
+				$http({method: 'GET', url: host + '/services.sc/views/municipios.json?args[0]='+state}).success(function(data) {
+					if (anonima) {
+						$scope.amcipios = data;
+					} else {
+						$scope.mcipios = data;
+					}
+				});
+			};
+			$scope.validarConcursante = function (user) {
+				if (!user || !user.document || user.document === 'undefined') {
+					return;
+				}
+				$http({method: 'GET', url: host + '/services.sc/views/concursante.json?args[0]='+user.document}).success(function(data) {
+					if (data && data.length > 0 && data[0].documento == user.document) {
+						var dlg = $dialogs.error('Participante ya registrado');
+						user.valid=false;
+					} else {
+						user.valid=true;
+					}
+				});
+			}
+			$scope.salvar = function (user, anonima) {
+				if (!user.valid) {
+					var dlg = $dialogs.error('Participante ya registrado');
+					return;
+				}
+				$scope.user = user;
+				$scope.anonima = anonima;
+				progreso = 0;
+				var dlg = $dialogs.wait('Guardando...', progreso);
+				supervisarProgreso('Guardando...');
+				$scope.alerts = new Array();
+				var files = [document.getElementById('uAImg1').files[0], document.getElementById('uAImg2').files[0], document.getElementById('uAImg3').files[0]];
+				for (var i = 0; i < files.length; i ++) {
+					if (files[i]) {
+						if (files[i].type != 'image/jpeg' && files[i].type != 'image/png') {
+							$scope.alerts.push({type: 'danger', msg: 'Tipo de archivo no valido: ' + files[i].type});
+							progreso = 100;
+							return;
+						}
+					} else {
+						$scope.alerts.push({type: 'danger', msg: 'Falta una imagen.'});
+						progreso = 100;
+						return;
+					}
+				}
+				uploadImages($http, $scope, files, 0);
+			};
+			$scope.filtrarAnonimas = function (cdepto, cmcipio) {
+				if (cmcipio < 0 && cdepto > 0) {
+					$http({method: 'GET', url: host + '/services.sc/views/municipios.json?args[0]=all&args[1]='+cdepto}).success(function(data) {
+						$scope.fmcipios = data;
+					});
+				}
+				$http({method: 'GET', url: host + '/services.sc/views/anonima.json' + (cdepto > 0 ? '?args[0]=all&args[1]='+cdepto : '')+(cmcipio > 0 ? "&args[2]=" + cmcipio : "")}).success(function(data) {
+					$scope.anonimasTotal = data;
+					if ($scope.anonimasTotal.length == 'undefined') {
+						$scope.anonimasTotal = [data];
+					}
+					$scope.totalItems = $scope.anonimasTotal.length;
+					$scope.anonimas = $scope.anonimasTotal.slice(0, $scope.anonimasTotal.length > $scope.itemsPerPage ? $scope.itemsPerPage : $scope.anonimasTotal.length);
+					$scope.currentPage = 1;
+				});
+			};
+			$scope.$on(
+				"$routeChangeSuccess",
+					function ($currentRoute, $previousRoute) {
+						render();
+					}
+			);
+		};
+		var AnonimasModalCtrl = function ($scope, $http, $modalInstance, data) {
+			$scope.close = function () {
+				$modalInstance.close();
+			};
+			$scope.episode = data.episode;
+		};
+		</script>
+	</head>
+	<body>
+		<div id="wrapper" class="ng-scope" ng-controller="AnonimasCtrl">
+			<div class="cabeza">
+				<ul id="menu">
+					<li ng-repeat="node in menu" ng-include="'nodo.html'"></li>
+				</ul>
+			</div>
+			<div id="main" class="cuerpo">
+				<div id="logo"></div>
+				<div class="text-right">
+					<a href="http://anonimas.senalcolombia.tv">ir al sitio</a>
+				</div>
+				<div id="bsociales"></div>
+				<tabset>
+					<tab heading="Participa aqu&iacute;" active="activa[0]">
+						<div class="container-fluid">
+							<div class="row">
+								<div class="col-md-12">
+									<h2>Participa aqu&iacute;</h2>
+								</div>
+							</div>
+							<div ng-include="'sociales.html'"></div>
+						</div>
+						<alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">{{alert.msg}}</alert>
+						<form class="fanonimas" role="form" name="formAnonimas" novalidate>
+							<div class="row titulo">
+								<div class="col-md-12">
+									<span class="ftitulo">Tus datos personales</span>
+								</div>
+							</div>
+							<div class="row">
+								<label class="col-md-2" for="uName">Nombres:</label>
+								<input id="uName" class="col-md-4" type="text" ng-model="user.name" name="uName" required/>
+								<label class="col-md-2" for="uLastname">Apellidos:</label>
+								<input id="uLastname" class="col-md-4" type="text" ng-model="user.lastname" name="uLastname" required/>
+							</div>
+							<div class="row">
+								<label class="col-md-2" for="uDocType">Tipo de documento:</label>
+								<select id="uDocType" class="col-md-4" name="uDocType" ng-model="user.docType" required>
+									<option value="cc">C&eacute;dula</option>
+									<option value="ce">C&eacute;dula Extranjer&iacute;a</option>
+								</select>
+								<label class="col-md-2" for="uDocument">N&uacute;mero de documento:</label>
+								<input id="uDocument" class="col-md-4" type="text" ng-model="user.document" ng-blur="validarConcursante(user)" name="uDocument" required/>
+							</div>
+							<div class="row">
+								<label class="col-md-2" for="uState">Departamento:</label>
+								<select id="uState" class="col-md-4" name="uState" ng-model="user.state" ng-options="depto.nid as depto.departamento for depto in deptos" ng-change="updateMcipios(user.state, false)"></select>
+								<label class="col-md-2" for="uCounty">Municipio:</label>
+								<select id="uCounty" class="col-md-4" name="uCounty" ng-model="user.county" ng-options="mcipio.nid as mcipio.municipio for mcipio in mcipios" required></select>
+							</div>
+							<div class="row">
+								<label class="col-md-2" for="uGender">Sexo:</label>
+								<select id="uGender" class="col-md-4" name="uGender" ng-model="user.gender" required>
+									<option value="m">Hombre</option>
+									<option value="f">Mujer</option>
+								</select>
+								<label class="col-md-2" for="uPhone">Tel&eacute;fono de contacto:</label>
+								<input id="uPhone" class="col-md-4" type="text" ng-model="user.phone" name="uPhone" required/>
+							</div>
+							<div class="row">
+								<label class="col-md-2" for="uAddress">Direcci&oacute;n de contacto:</label>
+								<input id="uAddress" class="col-md-10" type="text" ng-model="user.address" name="uAddress" required/>
+							</div>
+							<div class="row">
+								<label class="col-md-2" for="uEmail">Correo electr&oacute;nico:</label>
+								<input id="uEmail" class="col-md-10" type="email" ng-model="user.email" name="uEmail" required/>
+								<div class="col-md-12" ng-show="formAnonimas.uEmail.$dirty && formAnonimas.uEmail.$invalid">Dato no valido:
+									<span ng-show="formAnonimas.uEmail.$error.required">Diligencia tu correo electronico.</span>
+									<span ng-show="formAnonimas.uEmail.$error.email">Esta no es una direccion de correo valida.</span>
+								</div>
+							</div>
+							
+							<div class="row titulo">
+								<div class="col-md-12">
+									<span class="ftitulo">Datos de tu An&oacute;nima Extraordinaria:</span>
+								</div>
+							</div>
+							<div class="row">
+								<label class="col-md-2" for="uAName">Nombre completo:</label>
+								<input id="uAName" class="col-md-10" type="text" ng-model="anonima.name" name="uAName" required/>
+							</div>
+							<div class="row">
+								<label class="col-md-2" for="uAImg1">Adjunta tres(3) fotos:</label>
+								<input id="uAImg1" class="col-md-4" type="file" />
+								<label class="col-md-2" for="uAState">Departamento:</label>
+								<select id="uAState" class="col-md-4" name="uAState" ng-model="anonima.state" ng-options="depto.nid as depto.departamento for depto in deptos" ng-change="updateMcipios(anonima.state, true)">
+									<option value="-1">---</option>
+								</select>
+							</div>
+							<div class="row">
+								<div class="col-md-2"><small style="font-size: 0.5em;">Formato png o jpg. Tama&ntilde;o m&iacute;nimo 800x600px.</small></div>
+								<input id="uAImg2" class="col-md-4" type="file" />
+								<label class="col-md-2" for="uACounty">Municipio:</label>
+								<select id="uACounty" class="col-md-4" name="uACounty" ng-model="anonima.county" ng-options="mcipio.nid as mcipio.municipio for mcipio in amcipios" required>
+									<option value="-1">---</option>
+								</select>
+							</div>
+							<div class="row">
+								<div class="col-md-2"></div>
+								<input id="uAImg3" class="col-md-4" type="file" />
+								<div class="col-md-6"></div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<label for="uAPostulation">&#191;Por qu&eacute;e crees que es una an&oacute;nima extraordinaria?</label><br/>
+									<textarea id="uAPostulation" name="uAPostulation" style="width: 100%;" ng-model="anonima.postulation" ng-maxlength="2000" required></textarea>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<label>
+										<input type="checkbox" ng-model="anonima.agree" name="uAgree" required /> He le&iacute;do y acepto los <a href="#" ng-click="verTyC()">t&eacute;rminos y condiciones</a>.
+									</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<label>
+										<input type="checkbox" ng-model="user.agreeSend" name="uAgreeSend" /> Acepto recibir informaci&oacute;n v&iacute;a e-mail sobre futuras actividades del canal Se&ntilde;al Colombia.
+									</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<p class="texto" style="text-align: right;">* Todos los campos del formulario son obligatorios.</p>
+									<button class="btn aladerecha" type="button" ng-click="salvar(user, anonima)" ng-disabled="formAnonimas.$invalid">Enviar</button>
+								</div>
+							</div>
+							<h3 style="text-align: center;">&#33;Nos sentimos orgullosos de nuestras mujeres!</h3>
+						</form>
+					</tab>
+					<tab heading="Postuladas" active="activa[1]">
+						<div class="container-fluid">
+							<div class="row">
+								<div class="col-md-12">
+									<h2>Postuladas</h2>
+								</div>
+							</div>
+							<div ng-include="'sociales.html'"></div>
+						</div>
+						<div ng-switch on="renderAction">
+							<div ng-switch-when="default">
+								<div ng-include="'anonimas.html'"></div>
+							</div>
+							<div ng-switch-when="postulada">
+								<div ng-include="'postulada.html'"></div>
+							</div>
+						</div>
+					</tab>
+					<tab ng-repeat="tab in tabs" heading="{{tab.title}}" active="activa[2]">
+						<div class="container-fluid">
+							<div class="row">
+								<div class="col-md-12">
+									<h2>{{tab.title}}</h2>
+								</div>
+							</div>
+							<div ng-include="'sociales.html'"></div>
+							<div class="row">
+								<div ng-show="tab.videos">
+									<div class="col-md-12 texto">
+										<div class="avideo aladerecha">
+											<div my-youtube ng-repeat="video in tab.videos" code="video"></div>
+										</div>
+										<span ng-bind-html="tab.body"></span>
+									</div>
+								</div>
+								<div ng-show="!tab.videos">
+									<div class="col-md-12">
+										<span class="texto" ng-bind-html="tab.body"></span>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12 text-center">
+									<button class="btn" type="button" ng-click="setActiveTab(0)">Participa Aqu&iacute;</button>
+								</div>
+							</div>
+						</div>
+					</tab>
+				</tabset>
+			</div>
+			<footer class="footer-home">
+				<div class="footer-text">
+					Se&ntilde;al Colombia: Avenida El Dorado - Cra. 45 No 26 - 33, Bogot&aacute; D.C. Colombia , Sur Am&eacute;rica. Tels: (57)(1) 2200700 Fax: (57)(1)2200700 Ext.536
+				</div>
+			</footer>
+			<script type="text/ng-template" id="ok.html">
+				<div class="modal">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h4 class="modal-title"><span class="glyphicon glyphicon-ok"></span> An&oacute;nima postulada</h4>
+							</div>
+							<div class="modal-body">
+								<p>Su postulaci&oacute; fue exitosa!</p>
+							</div>
+							<div class="modal-footer">
+								<button class="btn" type="button" onclick="location.href='http://anonimas.senalcolombia.tv'">Volver</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</script>
+			<script type="text/ng-template" id="episode.html">
+				<div class="modal">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h4 class="modal-title">{{episode.title}}</h4>
+							</div>
+							<div class="modal-body texto maxModalH">
+								<div ng-bind-html="episode.body"></div>
+							</div>
+							<div class="modal-footer">
+								<button class="btn" type="button" ng-click="close()">Cerrar</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</script>
+			<script type="text/ng-template" id="nodo.html">
+				<a href="{{node.link}}">{{node.name}}</a>
+				<ul>
+					<li ng-repeat="node in node.children" ng-include="'nodo.html'"></li>
+				</ul>
+			</script>
+			<script type="text/ng-template" id="anonimas.html">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-md-5">
+							<dl class="dl-horizontal">
+								<dt><label for="fState">Departamento:</label></dt>
+								<dd><select id="fState" name="fState" style="width: 100%;" ng-model="ufilter.state" ng-options="depto.cod_depto as depto.departamento for depto in deptos" ng-change="filtrarAnonimas(ufilter.state, -1)"></select></dd>
+							</dl>
+						</div>
+						<div class="col-md-5">
+							<dl class="dl-horizontal">
+								<dt><label for="fCounty">Municipio:</label></dt>
+								<dd><select id="fCounty" name="fCounty" style="width: 100%;" ng-model="ufilter.county" ng-options="fmcipio.cod_municipio as fmcipio.municipio for fmcipio in fmcipios" ng-change="filtrarAnonimas(ufilter.state, ufilter.county)"></select></dd>
+							</dl>
+						</div>
+						<div class="col-md-2">
+							<dl class="dl-horizontal">
+								<dt><a class="btn btn-info" href="#" ng-click="filtrarAnonimas(-1, -1)">ver todas</a></dt>
+								<dd>&nbsp;</dd>
+							</dl>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12"></div>
+					</div>
+					<div class="row">
+						<div class="col-md-2 anonima120" ng-repeat="anonima in anonimas">
+							<a href="#/postulada/{{anonima.nid}}">
+								<img src="http://series.senalcolombia.tv.s3.amazonaws.com/gallery/thumb_anonimas_{{anonima.documento}}_120_0.png" />
+								<h3>{{anonima.nombre}}</h3>
+								<p>{{anonima.municipio}}</p>
+							</a>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12 text-center">
+							<pagination boundary-links="true" total-items="totalItems" items-per-page="itemsPerPage" page="currentPage" on-select-page="setPage(page)" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
+						</div>
+					</div>
+				</div>
+			</script>
+			<script type="text/ng-template" id="postulada.html">
+				<div class="postulada" ng-show="postulada">
+					<div class="container-fluid">
+						<div class="row">
+							<div class="col-md-4 anonima380">
+								<img src="http://series.senalcolombia.tv.s3.amazonaws.com/gallery/thumb_anonimas_{{postulada.documento}}_120_0_2.png" />
+							</div>
+							<div class="col-md-4 anonima380">
+								<img src="http://series.senalcolombia.tv.s3.amazonaws.com/gallery/thumb_anonimas_{{postulada.documento}}_120_0_3.png" />
+							</div>
+							<div class="col-md-4 anonima380">
+								<img src="http://series.senalcolombia.tv.s3.amazonaws.com/gallery/thumb_anonimas_{{postulada.documento}}_120_0_4.png" />
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12 texto">
+								<article>
+									<h1>{{postulada.nombre}}</h1>
+									<div class="text-justify">
+										{{postulada.nominacion}}
+									</div>
+								</article>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-2"></div>
+							<div class="col-md-8 fondoRaya"></div>
+							<div class="col-md-2"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-12 postuladaFooter text-center">
+								&#33;Comparte a tu An&oacute;nima Extraordinaria en redes<br/>
+								sociales para que toda Colombia la conozca!
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12 text-right">
+								<a class="btn btn-info" href="#">Volver al listado</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</script>
+			<script type="text/ng-template" id="sociales.html">
+				<div class="row intermedio">
+					<div class="col-md-10"></div>
+					<div class="col-md-2">
+						<button type="button" class="btn btn-info aladerecha" ng-click="setActiveTab(2)">Volver a la actividad</button>
+					</div>
+				</div>
+			</script>
+		</div>
+	</body>
+</html>

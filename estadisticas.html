@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es" class="ng-scope" ng-app="reporteApp">
+	<head>
+		<meta charset="ISO-8859-1">
+		<title>Estadisticas</title>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
+		<script type="text/javascript">
+			var host = 'http://172.19.5.55/series';
+			var app = angular.module("reporteApp", []);
+			app.directive('fbFrame', function($sce) {
+				return {
+					restrict: 'EA',
+					scope: { code:'=' },
+					replace: true,
+					template: '<iframe src="{{url}}" scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:21px;" allowTransparency="true"></iframe>',
+					link: function (scope) {
+						scope.$watch('code', function (newVal) {
+							if (newVal) {
+								scope.url = $sce.trustAsResourceUrl('http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fanonimas.senalcolombia.tv%2Factividad%2Findex.html%23%2Fpostulada%2F' + newVal + '&amp;width&amp;layout=button_count&amp;action=like&amp;show_faces=true&amp;share=true&amp;height=21');
+								console.log(newVal);
+							}
+						});
+					}
+				};
+			});
+			app.directive('gplusBoton', function($sce) {
+				return {
+					restrict: 'EA',
+					scope: { code:'=' },
+					replace: true,
+					template: '<g:plusone href="{{urlGplus}}"></g:plusone>',
+					link: function (scope) {
+						scope.$watch('code', function (newVal) {
+							if (newVal) {
+								scope.urlGplus = $sce.trustAsResourceUrl('http://anonimas.senalcolombia.tv/actividad/index.html#/postulada/' + newVal);
+							}
+						});
+					}
+				};
+			});
+			app.directive('twitterBoton', function($sce) {
+				return {
+					restrict: 'EA',
+					scope: { code:'=' },
+					replace: true,
+					template: '<a href="https://twitter.com/share" class="twitter-share-button" data-url="{{urlTB}}" data-lang="es">Twittear</a>',
+					link: function (scope) {
+						scope.$watch('code', function (newVal) {
+							if (newVal) {
+								scope.urlTB = $sce.trustAsResourceUrl('http://anonimas.senalcolombia.tv/actividad/index.html#/postulada/' + newVal);
+							}
+						});
+					}
+				};
+			});
+			var ReporteCtrl = function ($scope, $http) {
+				$http({method: 'GET', url: host + '/services.sc/views/anonima.json'}).success( function (data) {
+					$scope.anonimas = data;
+					(function() {
+						var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+						po.src = 'https://apis.google.com/js/plusone.js';
+						var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+					})();
+					!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
+				});
+			}
+		</script>
+	</head>
+	<body>
+		<h1>Listado de anonimas</h1>
+		<div class="ng-scope" ng-controller="ReporteCtrl">
+			<ul>
+				<li ng-repeat="anonima in anonimas" ng-include="'anonima.html'"></li>
+			</ul>
+		</div>
+		<script type="text/ng-template" id="anonima.html">
+			<div class="anonima">
+				<h2>{{anonima.nombre}}</h2>
+				<ul>
+					<li><div fb-frame code="anonima.nid"></div></li>
+					<li><div gplus-boton code="anonima.nid"></div></li>
+					<li><div twitter-boton code="anonima.nid"></div></li>
+				</ul>
+			</div>
+		</script>
+	</body>
+</html>
